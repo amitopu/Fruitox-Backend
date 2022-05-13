@@ -24,12 +24,25 @@ const run = async () => {
     try {
         await client.connect();
         console.log("db connected");
-        const serviceCollection = client.db("fruitox").collection("services");
+        const itemsCollection = client.db("fruitox").collection("items");
 
-        app.get("/services", async (req, res) => {
-            const cursor = serviceCollection.find({});
+        app.get("/items", async (req, res) => {
+            const cursor = itemsCollection.find({});
             const result = await cursor.toArray();
             res.send(result);
+        });
+
+        // for adding items to db
+        app.post("/additem", async (req, res) => {
+            const data = req.body;
+            console.log(body);
+            // const result = await itemsCollection.insertOne(data);
+            // console.log(result);
+            // if (result.acknowledged) {
+            //     res.send(result);
+            // } else {
+            //     res.send({ acknowledged: false });
+            // }
         });
     } finally {
     }
