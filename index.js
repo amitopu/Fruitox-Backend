@@ -29,20 +29,28 @@ const run = async () => {
         app.get("/items", async (req, res) => {
             const cursor = itemsCollection.find({});
             const result = await cursor.toArray();
+            console.log(result);
             res.send(result);
+        });
+
+        // for getting single item with id
+        app.get("/inventory/:id", async (req, res) => {
+            const id = req.params;
+            console.log(id);
+            res.send({ status: true });
         });
 
         // for adding items to db
         app.post("/additem", async (req, res) => {
             const data = req.body;
-            console.log(body);
-            // const result = await itemsCollection.insertOne(data);
-            // console.log(result);
-            // if (result.acknowledged) {
-            //     res.send(result);
-            // } else {
-            //     res.send({ acknowledged: false });
-            // }
+            console.log(data);
+            const result = await itemsCollection.insertOne(data);
+            console.log("result:", result);
+            if (result.acknowledged) {
+                res.send(result);
+            } else {
+                res.send({ acknowledged: false });
+            }
         });
     } finally {
     }
