@@ -34,10 +34,12 @@ const run = async () => {
         });
 
         // for getting single item with id
-        app.get("/inventory/:id", async (req, res) => {
-            const id = req.params;
+        app.get("/items/:id", async (req, res) => {
+            const id = req.params.id;
             console.log(id);
-            res.send({ status: true });
+            const query = { _id: ObjectId(id) };
+            const result = await itemsCollection.findOne(query);
+            res.send(result);
         });
 
         // for adding items to db
@@ -46,6 +48,50 @@ const run = async () => {
             console.log(data);
             const result = await itemsCollection.insertOne(data);
             console.log("result:", result);
+            if (result.acknowledged) {
+                res.send(result);
+            } else {
+                res.send({ acknowledged: false });
+            }
+        });
+
+        app.put("/item/:id", async (req, res) => {
+            const id = req.params.id;
+            const body = req.body;
+            console.log(body);
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: body,
+            };
+            const result = await itemsCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+
+            if (result.acknowledged) {
+                res.send(result);
+            } else {
+                res.send({ acknowledged: false });
+            }
+        });
+
+        app.put("/delivered/:id", async (req, res) => {
+            const id = req.params.id;
+            const body = req.body;
+            console.log(body);
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: body,
+            };
+            const result = await itemsCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+
             if (result.acknowledged) {
                 res.send(result);
             } else {
