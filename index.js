@@ -26,11 +26,32 @@ const run = async () => {
         console.log("db connected");
         const itemsCollection = client.db("fruitox").collection("items");
 
+        // for getting all items or according to query value
         app.get("/items", async (req, res) => {
-            const cursor = itemsCollection.find({});
-            const result = await cursor.toArray();
-            console.log(result);
-            res.send(result);
+            console.log("query: ", req.query);
+            const size = parseInt(req.query.size);
+            const page = parseInt(req.query.page);
+            const query = {};
+            const cursor = itemsCollection.find(query);
+            let items;
+            if (page || size) {
+                items = await cursor
+                    .skip(page * size)
+                    .limit(size)
+                    .toArray();
+            } else {
+                items = await cursor.toArray();
+            }
+
+            res.send(items);
+        });
+
+        app.get("/items/user/:user", async (req, res) => {
+            const user = req.params.user;
+            const query = { supplierName: user };
+            const cursor = itemsCollection.find(query);
+            const items = await cursor.toArray();
+            res.send(items);
         });
 
         // for getting single item with id
@@ -97,6 +118,22 @@ const run = async () => {
             } else {
                 res.send({ acknowledged: false });
             }
+        });
+
+        app.delete("/delete/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await itemsCollection.deleteOne(query);
+            if (result.deletedCount === 1) {
+                res.send({ deleted: true });
+            } else {
+                res.send({ delete: false });
+            }
+        });
+
+        app.get("/itemscount", async (req, res) => {
+            const result = await itemsCollection.estimatedDocumentCount();
+            res.send({ count: result });
         });
     } finally {
     }
