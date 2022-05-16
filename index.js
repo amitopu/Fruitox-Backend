@@ -48,9 +48,20 @@ const run = async () => {
 
         app.get("/items/user/:user", async (req, res) => {
             const user = req.params.user;
+            const size = parseInt(req.query.size);
+            const page = parseInt(req.query.page);
             const query = { supplierName: user };
+            console.log(page, size, query);
             const cursor = itemsCollection.find(query);
-            const items = await cursor.toArray();
+            let items;
+            if (page || size) {
+                items = await cursor
+                    .skip(page * size)
+                    .limit(size)
+                    .toArray();
+            } else {
+                items = await cursor.toArray();
+            }
             res.send(items);
         });
 
@@ -133,6 +144,15 @@ const run = async () => {
 
         app.get("/itemscount", async (req, res) => {
             const result = await itemsCollection.estimatedDocumentCount();
+            res.send({ count: result });
+        });
+
+        app.get("/itemscount/:user", async (req, res) => {
+            const user = req.params.user;
+            const query = { supplierName: user };
+            console.log(query);
+            const result = await itemsCollection.countDocuments(query);
+            console.log(result);
             res.send({ count: result });
         });
     } finally {
