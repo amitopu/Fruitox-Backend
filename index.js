@@ -42,7 +42,7 @@ const run = async () => {
             } else {
                 items = await cursor.toArray();
             }
-
+            console.log(items);
             res.send(items);
         });
 
@@ -50,7 +50,7 @@ const run = async () => {
             const user = req.params.user;
             const size = parseInt(req.query.size);
             const page = parseInt(req.query.page);
-            const query = { supplierName: user };
+            const query = { $or: [{ supplierName: user }, { manager: user }] };
             console.log(page, size, query);
             const cursor = itemsCollection.find(query);
             let items;
@@ -149,7 +149,7 @@ const run = async () => {
 
         app.get("/itemscount/:user", async (req, res) => {
             const user = req.params.user;
-            const query = { supplierName: user };
+            const query = { $or: [{ supplierName: user }, { manager: user }] };
             console.log(query);
             const result = await itemsCollection.countDocuments(query);
             console.log(result);
