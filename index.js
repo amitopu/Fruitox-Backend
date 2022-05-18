@@ -155,6 +155,10 @@ const run = async () => {
             console.log(result);
             res.send({ count: result });
         });
+
+        app.get("/fun", (req, res) => {
+            res.send("Have fun haha!!!");
+        });
     } finally {
     }
 };
